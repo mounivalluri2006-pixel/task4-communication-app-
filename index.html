@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CollabConnect - Real-Time Communication</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Authentication Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="auth-container">
+                <h2 id="authTitle">Join Meeting</h2>
+                <form id="authForm">
+                    <div class="form-group">
+                        <input type="text" id="displayName" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="roomId" placeholder="Room ID (leave blank for new room)">
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-video"></i> Join Meeting
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="mainApp" class="hidden">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1><i class="fas fa-video"></i> CollabConnect</h1>
+                <span id="roomInfo" class="room-info">Room: <span id="currentRoomId"></span></span>
+            </div>
+            <div class="header-center">
+                <div class="meeting-controls">
+                    <button id="toggleVideo" class="control-btn active" title="Toggle Video">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button id="toggleAudio" class="control-btn active" title="Toggle Audio">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="screenShare" class="control-btn" title="Share Screen">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <button id="endCall" class="control-btn danger" title="End Call">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="participant-count">
+                    <i class="fas fa-users"></i>
+                    <span id="participantCount">1</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Video Grid -->
+            <div class="video-section">
+                <div id="videoGrid" class="video-grid">
+                    <div class="video-container local">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="video-overlay">
+                            <span class="participant-name">You</span>
+                            <div class="video-controls">
+                                <span class="audio-indicator">
+                                    <i class="fas fa-microphone"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="chat">
+                        <i class="fas fa-comments"></i> Chat
+                    </button>
+                    <button class="tab-btn" data-tab="whiteboard">
+                        <i class="fas fa-paint-brush"></i> Board
+                    </button>
+                    <button class="tab-btn" data-tab="files">
+                        <i class="fas fa-file"></i> Files
+                    </button>
+                    <button class="tab-btn" data-tab="participants">
+                        <i class="fas fa-users"></i> People
+                    </button>
+                </div>
+
+                <!-- Chat Tab -->
+                <div id="chatTab" class="tab-content active">
+                    <div class="chat-container">
+                        <div id="chatMessages" class="chat-messages"></div>
+                        <div class="chat-input-container">
+                            <input type="text" id="chatInput" placeholder="Type a message..." maxlength="500">
+                            <button id="sendMessage" class="btn-send">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Whiteboard Tab -->
+                <div id="whiteboardTab" class="tab-content">
+                    <div class="whiteboard-container">
+                        <div class="whiteboard-controls">
+                            <button id="penTool" class="tool-btn active" data-tool="pen">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button id="eraserTool" class="tool-btn" data-tool="eraser">
+                                <i class="fas fa-eraser"></i>
+                            </button>
+                            <input type="color" id="colorPicker" value="#000000">
+                            <input type="range" id="brushSize" min="1" max="20" value="3">
+                            <button id="clearBoard" class="tool-btn danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <canvas id="whiteboard" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Files Tab -->
+                <div id="filesTab" class="tab-content">
+                    <div class="file-share-container">
+                        <div class="file-upload">
+                            <input type="file" id="fileInput" multiple hidden>
+                            <button id="uploadBtn" class="btn-upload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Upload Files
+                            </button>
+                        </div>
+                        <div id="fileList" class="file-list"></div>
+                    </div>
+                </div>
+
+                <!-- Participants Tab -->
+                <div id="participantsTab" class="tab-content">
+                    <div id="participantsList" class="participants-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status">
+        <i class="fas fa-circle"></i>
+        <span>Connected</span>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden">
+        <div class="toast-content">
+            <i class="toast-icon"></i>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
